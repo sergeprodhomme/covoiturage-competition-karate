@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <base target="_top" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Covoiturage Compétitions — Karaté</title>
+  <style>
+    :root { --red:#d0342c; --dark:#26221f; --muted:#7a726b; --bg:#f6f4f0; --card:#ffffff; --line:#e7e2db; --ok:#1e7d46; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif; background:var(--bg); color:var(--dark); }
+    .wrap { max-width:960px; margin:0 auto; padding:20px 16px 60px; }
+    .hero h1 { margin:0 0 6px; font-size:28px; letter-spacing:-.5px; }
+    .hero h1 .belt { color:var(--red); }
+    .hero p { margin:0 0 22px; color:var(--muted); font-size:15px; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:28px; }
+    @media (max-width:680px){ .grid { grid-template-columns:1fr; } }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px; box-shadow:0 1px 4px rgba(0,0,0,.04); }
+    .card h2 { margin:0 0 14px; font-size:17px; }
+    label { display:block; font-size:12.5px; font-weight:600; color:var(--muted); margin-bottom:11px; }
+    input, select { width:100%; padding:9px 11px; margin-top:4px; border:1px solid var(--line); border-radius:9px; font-size:15px; background:#fff; color:var(--dark); }
+    input:focus, select:focus { outline:2px solid rgba(208,52,44,.25); border-color:var(--red); }
+    .row2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .row3 { display:grid; grid-template-columns:1fr 92px; gap:10px; }
+    .btn { width:100%; padding:11px; border:none; border-radius:10px; font-size:15px; font-weight:700; cursor:pointer; }
+    .btn.primary { background:var(--red); color:#fff; }
+    .btn.primary:hover { background:#b02a23; }
+    .btn.ghost { background:#fff; color:var(--dark); border:1px solid var(--line); }
+    .btn.danger { background:var(--red); color:#fff; }
+    .list-head { display:flex; align-items:baseline; justify-content:space-between; margin:26px 0 12px; flex-wrap:wrap; gap:8px; }
+    .list-head h2 { margin:0; font-size:19px; }
+    .list-head button { background:none; border:none; color:var(--red); font-size:13px; cursor:pointer; font-weight:600; }
+    details.past { margin-top:26px; }
+    details.past summary { cursor:pointer; font-size:15px; font-weight:700; color:var(--muted); }
+    .comp { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 18px; margin-bottom:14px; box-shadow:0 1px 4px rgba(0,0,0,.04); }
+    .comp.past-comp { opacity:.65; }
+    .comp-head { display:flex; align-items:flex-start; gap:12px; flex-wrap:wrap; }
+    .comp-date { flex:none; width:52px; text-align:center; background:var(--dark); color:#fff; border-radius:10px; padding:6px 4px; }
+    .comp-date .day { font-size:19px; font-weight:800; line-height:1.1; }
+    .comp-date .month { font-size:10.5px; text-transform:uppercase; letter-spacing:.5px; }
+    .comp-title { font-weight:800; font-size:16.5px; }
+    .comp-meta { font-size:13px; color:var(--muted); margin-top:3px; }
+    .comp-meta b { color:var(--dark); }
+    .badge { margin-left:auto; font-size:12px; font-weight:700; padding:5px 10px; border-radius:999px; white-space:nowrap; }
+    .badge.ok { background:#e6f4ec; color:var(--ok); }
+    .badge.zero { background:#fbe9e7; color:var(--red); }
+    .cars-title, .wait-title { font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin:14px 0 6px; }
+    .car { border:1px solid var(--line); border-radius:11px; padding:10px 12px; margin-bottom:8px; background:#fdfcfa; }
+    .car-head { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .avatar { width:34px; height:34px; border-radius:50%; background:var(--dark); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; flex:none; }
+    .d-name { font-weight:700; font-size:14.5px; }
+    .d-name .heure { color:var(--red); }
+    .d-point { font-size:12.5px; color:var(--muted); margin-top:1px; }
+    .pax { display:flex; flex-wrap:wrap; gap:6px; margin:8px 0 2px 44px; align-items:center; }
+    .pax .lbl { font-size:12px; color:var(--muted); font-weight:600; }
+    .chip { background:#f1ede8; border:1px solid var(--line); border-radius:999px; padding:3px 9px 3px 12px; font-size:12.5px; font-weight:600; display:inline-flex; align-items:center; gap:6px; }
+    .chip button { background:none; border:none; cursor:pointer; color:var(--muted); font-size:13px; line-height:1; padding:0 2px; }
+    .chip button:hover { color:var(--red); }
+    .d-actions { margin:6px 0 0 44px; }
+    .link-danger { background:none; border:none; color:var(--muted); font-size:12px; cursor:pointer; padding:0; text-decoration:underline; }
+    .link-danger:hover { color:var(--red); }
+    .empty { color:var(--muted); font-size:13.5px; background:#fdfcfa; border:1px dashed var(--line); border-radius:11px; padding:12px; text-align:center; }
+    .ac-wrap { position:relative; }
+    .suggest { position:absolute; z-index:20; top:100%; left:0; right:0; margin:4px 0 0; padding:0; list-style:none; background:#fff; border:1px solid var(--line); border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.12); max-height:210px; overflow:auto; }
+    .suggest li { padding:9px 11px; font-size:13.5px; cursor:pointer; border-bottom:1px solid #f3efe9; }
+    .suggest li:last-child { border-bottom:none; }
+    .suggest li:hover { background:#faf7f2; }
+    .hint { font-size:12px; color:var(--muted); margin:2px 0 12px; }
+    footer { margin-top:34px; text-align:center; color:var(--muted); font-size:12.5px; }
+    .hidden { display:none !important; }
+    .modal { position:fixed; inset:0; background:rgba(0,0,0,.45); display:flex; align-items:center; justify-content:center; z-index:50; padding:16px; }
+    .modal-box { background:#fff; border-radius:14px; padding:20px; width:100%; max-width:340px; }
+    .modal-box h3 { margin:0 0 8px; font-size:16px; }
+    .modal-box p { margin:0 0 12px; font-size:13.5px; color:var(--muted); }
+    .modal-actions { display:flex; gap:10px; margin-top:12px; }
+    .modal-actions .btn { flex:1; }
+    .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:var(--dark); color:#fff; padding:10px 18px; border-radius:999px; font-size:14px; z-index:60; max-width:90vw; text-align:center; box-shadow:0 4px 14px rgba(0,0,0,.25); }
+    .toast.error { background:var(--red); }
+    #loading { text-align:center; color:var(--muted); font-size:14px; padding:30px 0; }
+    [draggable="true"] { cursor: grab; }
+    [draggable="true"]:active { cursor: grabbing; }
+    .car.drop-hover { outline: 2px dashed var(--red); background: #fff6f4; }
+    .accept-row { display:flex; gap:8px; margin:10px 0 2px 44px; flex-wrap:wrap; }
+    .accept-row select { flex:1; min-width:150px; margin-top:0; padding:8px 10px; }
+    .btn-accept { flex:none; padding:8px 14px; border:none; border-radius:9px; background:var(--ok); color:#fff; font-size:13.5px; font-weight:700; cursor:pointer; }
+    .btn-accept:hover { background:#166a3a; }
+    @media (max-width:680px){
+      .wrap { padding:14px 10px 50px; }
+      .hero h1 { font-size:23px; }
+      .hero p { font-size:14px; margin-bottom:16px; }
+      .card { padding:14px; }
+      .comp { padding:14px 12px; }
+      input, select { font-size:16px; padding:11px 12px; }
+      .btn { padding:13px; font-size:16px; }
+      .pax, .d-actions, .accept-row { margin-left:0; }
+      .d-actions { margin-top:10px; }
+      .chip { font-size:13px; }
+      .comp-meta { font-size:12.5px; }
+      .d-point { font-size:13px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <h1>🥋 Covoiturage <span class="belt">compétitions</span></h1>
+      <p>Qui conduit, qui monte, où et quand : pour chaque compétition du club. Pas de compte à créer, ton prénom suffit — comme un Doodle.</p>
+    </header>
+
+    <div id="loading">Chargement des compétitions…</div>
+
+    <div id="app" class="hidden">
+      <section class="grid">
+        <div class="card">
+          <h2>🚗 Je conduis</h2>
+          <form id="driver-form" autocomplete="off">
+            <label>Prénom
+              <input id="d-prenom" maxlength="40" placeholder="Ex. Marie" required />
+            </label>
+            <label>Compétition
+              <select id="d-comp" required></select>
+            </label>
+            <div class="row3">
+              <label>Heure de départ
+                <input id="d-heure" type="time" required />
+              </label>
+              <label>Places
+                <input id="d-places" type="number" min="1" max="8" value="3" required />
+              </label>
+            </div>
+            <label>Mon point de prise en charge
+              <div class="ac-wrap">
+                <input id="d-point" maxlength="200" placeholder="Ex. devant le cinéma UGC…" required />
+                <ul id="d-suggest" class="suggest" hidden></ul>
+              </div>
+            </label>
+            <div class="hint">Tape au moins 3 lettres pour des suggestions d’adresses, ou écris librement.</div>
+            <button class="btn primary" type="submit">Proposer ma voiture</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h2>🙋 J'ai besoin d'une place</h2>
+          <form id="passenger-form" autocomplete="off">
+            <label>Prénom
+              <input id="p-prenom" maxlength="40" placeholder="Ex. Yann" required />
+            </label>
+            <label>Compétition
+              <select id="p-comp" required></select>
+            </label>
+            <label>Voiture
+              <select id="p-driver"></select>
+            </label>
+            <div class="hint" id="p-driver-hint"></div>
+            <label>Mon point de prise en charge
+              <div class="ac-wrap">
+                <input id="p-point" maxlength="200" placeholder="Ex. près de la gare…" />
+                <ul id="p-suggest" class="suggest" hidden></ul>
+              </div>
+            </label>
+            <div class="hint" id="p-point-hint">Sert si aucune place n’est disponible : un futur conducteur saura où te prendre.</div>
+            <label>Heure souhaitée (facultatif)
+              <input id="p-heure" type="time" />
+            </label>
+            <button class="btn primary" type="submit">M'inscrire</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <details>
+            <summary><b>📅 Ajouter une compétition</b> (organisateurs)</summary>
+            <form id="comp-form" autocomplete="off" style="margin-top:12px;">
+              <label>Nom
+                <input id="c-nom" maxlength="120" placeholder="Ex. Championnat régional — Reims" required />
+              </label>
+              <div class="row2">
+                <label>Date
+                  <input id="c-date" type="date" required />
+                </label>
+                <label>Heure de rendez-vous
+                  <input id="c-heure" type="time" />
+                </label>
+              </div>
+              <label>Lieu
+                <div class="ac-wrap">
+                  <input id="c-lieu" maxlength="200" placeholder="Ex. Palais des sports, Amiens" required />
+                  <ul id="c-suggest" class="suggest" hidden></ul>
+                </div>
+              </label>
+              <button class="btn primary" type="submit">Créer la compétition</button>
+            </form>
+          </details>
+        </div>
+      </section>
+
+      <section>
+        <div class="list-head">
+          <h2>🏆 Compétitions à venir</h2>
+          <button id="refresh" type="button">↻ Actualiser</button>
+        </div>
+        <div id="comp-list"></div>
+      </section>
+
+      <details class="past hidden" id="past-block">
+        <summary>Compétitions passées</summary>
+        <div id="past-list" style="margin-top:12px;"></div>
+      </details>
+
+      <footer>
+        Aucun compte requis. Les données sont enregistrées dans le fichier Google Sheets
+        « Covoiturage Compétitions — Karaté » créé automatiquement dans Google Drive de l’organisateur.
+      </footer>
+    </div>
+  </div>
+
+  <div id="modal" class="modal hidden">
+    <div class="modal-box">
+      <h3 id="modal-title">Confirmer</h3>
+      <p id="modal-text"></p>
+      <input id="modal-prenom" maxlength="40" placeholder="Ton prénom" />
+      <div class="modal-actions">
+        <button class="btn ghost" id="modal-cancel" type="button">Annuler</button>
+        <button class="btn danger" id="modal-ok" type="button">Supprimer</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script>
+    var state = { competitions: [] };
+    var modalCtx = null;
+
+    /* ---------------- utilitaires ---------------- */
+
+    function el(id) { return document.getElementById(id); }
+    function val(id) { return el(id).value.trim(); }
+
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+
+    var MONTHS = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+    function dateParts(iso) {
+      var s = String(iso == null ? '' : iso).trim();
+      var m = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(s);
+      if (m) return { y: m[1], m: parseInt(m[2], 10), d: parseInt(m[3], 10) };
+      var d = new Date(s);
+      if (!isNaN(d.getTime()) && d.getFullYear() >= 1970) {
+        return { y: d.getFullYear(), m: d.getMonth() + 1, d: d.getDate() };
+      }
+      return null;
+    }
+    var JOURS = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+    function heureTxt(t) {
+      var s = String(t == null ? '' : t).trim();
+      var m = /^(\d{1,2}):(\d{2})/.exec(s) || /\b(\d{1,2}):(\d{2})(:\d{2})?\b/.exec(s);
+      if (!m || parseInt(m[1], 10) > 23) return '';
+      return parseInt(m[1], 10) + 'h' + ('0' + parseInt(m[2], 10)).slice(-2);
+    }
+    function dateTxt(iso, heure) {
+      var p = dateParts(iso);
+      if (!p) return esc(String(iso == null ? '' : iso));
+      var d = new Date(p.y, p.m - 1, p.d);
+      var s = JOURS[d.getDay()] + ' ' + p.d + ' ' + MONTHS[p.m - 1];
+      var h = heureTxt(heure);
+      return h ? s + ' à ' + h : s;
+    }
+    function isPast(iso) {
+      var p = dateParts(iso);
+      if (!p) return false;
+      var today = new Date();
+      var base = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      return new Date(p.y, p.m - 1, p.d) < base;
+    }
+
+    var toastTimer = null;
+    function toast(msg, isError) {
+      el('toast').textContent = msg;
+      el('toast').className = 'toast' + (isError ? ' error' : '');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () { el('toast').className = 'toast hidden'; }, 3800);
+    }
+
+    function rememberPrenom(inputId) {
+      var v = val(inputId);
+      if (v) { try { localStorage.setItem('cv-prenom', v); } catch (e) {} }
+    }
+    function recallPrenom(inputId) {
+      try {
+        var v = localStorage.getItem('cv-prenom');
+        if (v && !el(inputId).value) el(inputId).value = v;
+      } catch (e) {}
+    }
+
+    function callServer(fn, payload, okMsg, thenReset) {
+      google.script.run
+        .withSuccessHandler(function (data) {
+          state = data;
+          render();
+          if (thenReset) thenReset();
+          if (okMsg) toast(okMsg);
+        })
+        .withFailureHandler(function (err) { toast(err.message || 'Une erreur est survenue.', true); })
+        [fn](payload);
+    }
+
+    /* ---------------- auto-complétion d'adresse ---------------- */
+
+    function bindAddress(inputId, listId) {
+      var input = el(inputId);
+      var ul = el(listId);
+      var timer = null;
+
+      function hide() { ul.hidden = true; ul.innerHTML = ''; }
+
+      function run(q) {
+        var url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&accept-language=fr&q=' + encodeURIComponent(q);
+        fetch(url, { headers: { 'Accept': 'application/json' } })
+          .then(function (r) { return r.json(); })
+          .then(function (items) {
+            ul.innerHTML = '';
+            (items || []).forEach(function (it) {
+              var li = document.createElement('li');
+              li.textContent = shortenAddress(it.display_name);
+              li.addEventListener('mousedown', function (ev) {
+                ev.preventDefault();
+                input.value = shortenAddress(it.display_name);
+                hide();
+              });
+              ul.appendChild(li);
+            });
+            ul.hidden = !(items && items.length);
+          })
+          .catch(hide);
+      }
+
+      input.addEventListener('input', function () {
+        clearTimeout(timer);
+        var q = input.value.trim();
+        if (q.length < 3) { hide(); return; }
+        timer = setTimeout(function () { run(q); }, 400);
+      });
+      input.addEventListener('blur', function () { setTimeout(hide, 180); });
+    }
+
+    function shortenAddress(s) {
+      var parts = String(s || '').split(',');
+      return parts.slice(0, 3).join(',').trim();
+    }
+
+    /* ---------------- rendu ---------------- */
+
+    function initial(prenom) { return (prenom || '?').charAt(0).toUpperCase(); }
+
+    function compCard(comp, isPast) {
+      var p = dateParts(comp.date);
+      var badge = comp.placesRestantes > 0
+        ? '<span class="badge ok">✅ ' + comp.placesRestantes + ' place' + (comp.placesRestantes > 1 ? 's' : '') + ' Libre' + (comp.placesRestantes > 1 ? 's' : '') + '</span>'
+        : '<span class="badge zero">complet</span>';
+
+      var carsHtml = (comp.drivers || []).map(driverCard).join('');
+      if (!carsHtml) carsHtml = '<div class="empty">Aucune voiture proposée pour l\'instant.</div>';
+
+      var waitHtml = '';
+      if ((comp.attente || []).length) {
+        waitHtml = '<div class="wait-title">⏳ En attente d\'un conducteur</div>' +
+          '<div class="hint">Glisse une demande sur ta voiture pour l\'accepter, ou utilise le bouton « ✅ Accepter » ; glisse aussi un passager d\'une voiture à l\'autre pour l\'échanger.</div>' +
+          comp.attente.map(function (w) { return waitingChip(w, comp); }).join('');
+      } else {
+        waitHtml = '<div class="hint">Astuce : glisse-dépose une demande ci-dessus sur ta voiture pour l\'accepter (aussi valable d\'une voiture à l\'autre).</div>';
+      }
+
+      return '<div class="comp' + (isPast ? ' past-comp' : '') + '">' +
+        '<div class="comp-head">' +
+        (p ? '<div class="comp-date"><div class="day">' + p.d + '</div><div class="month">' + MONTHS[p.m - 1] + '</div></div>' : '') +
+        '<div style="flex:1;min-width:180px;">' +
+        '<div class="comp-title">🏆 ' + esc(comp.nom) + '</div>' +
+        '<div class="comp-meta"><b>' + dateTxt(comp.date, comp.heureRdv) + '</b> · 📍 ' + esc(comp.lieu) + '</div>' +
+        '</div>' + badge +
+        '</div>' +
+        '<div class="cars-title">🚗 Les voitures</div>' + carsHtml + waitHtml +
+        '<div class="d-actions" style="margin-left:0;"><button type="button" class="link-danger" data-del="competition" data-id="' + esc(comp.id) + '">🗑 Supprimer cette compétition (si elle est vide)</button></div>' +
+        '</div>';
+    }
+
+    function driverCard(d) {
+      var seatsLeft = d.restantes > 0;
+      var badge = seatsLeft
+        ? '<span class="badge ok">✅ ' + d.restantes + ' place' + (d.restantes > 1 ? 's' : '') + ' Libre' + (d.restantes > 1 ? 's' : '') + '</span>'
+        : '<span class="badge zero">complet</span>';
+      var chips = (d.passagers || []).map(function (p) {
+        return '<span class="chip" draggable="true" data-drag="' + esc(p.id) + '" data-prenom="' + esc(p.prenom) + '" data-driver="' + esc(d.id) + '">🧒 ' + esc(p.prenom) +
+          ' <button type="button" title="Annuler ma place" data-del="reservations" data-id="' + esc(p.id) + '" data-prenom="' + esc(p.prenom) + '">✕</button></span>';
+      }).join('');
+      var chipsHtml = '<div class="pax"><span class="lbl">Passagers :</span>' + (chips || '<span class="lbl">aucun pour l\'instant</span>') + '</div>';
+      return '<div class="car" data-drop="' + esc(d.id) + '" data-prenom="' + esc(d.prenom) + '">' +
+        '<div class="car-head">' +
+        '<div class="avatar">' + esc(initial(d.prenom)) + '</div>' +
+        '<div style="flex:1;min-width:140px;">' +
+        '<div class="d-name">' + esc(d.prenom) + ' <span class="heure">· départ ' + esc(heureTxt(d.heure) || d.heure) + '</span></div>' +
+        '<div class="d-point">📍 ' + esc(d.point) + '</div>' +
+        '</div>' + badge +
+        '</div>' + chipsHtml +
+        '<div class="d-actions"><button type="button" class="link-danger" data-del="conducteur" data-id="' + esc(d.id) + '" data-prenom="' + esc(d.prenom) + '">🗑 Annuler mon annonce</button></div>' +
+        '</div>';
+    }
+
+    function waitingChip(w, comp) {
+      var available = ((comp && comp.drivers) || []).filter(function (d) { return d.restantes > 0; });
+      var acceptHtml = '';
+      if (available.length) {
+        var opts = '<option value="">— Dans quelle voiture ? —</option>';
+        available.forEach(function (d) {
+          opts += '<option value="' + esc(d.id) + '" data-prenom="' + esc(d.prenom) + '">' + esc(d.prenom) + ' · ' + esc(heureTxt(d.heure) || d.heure) + ' (' + d.restantes + ')</option>';
+        });
+        acceptHtml = '<div class="accept-row"><select class="accept-sel">' + opts + '</select>' +
+          '<button type="button" class="btn-accept" data-accept="1">✅ Accepter</button></div>';
+      } else if (comp && (comp.drivers || []).length) {
+        acceptHtml = '<div class="hint" style="margin-left:44px;">Toutes les voitures sont pleines pour le moment.</div>';
+      }
+      return '<div class="car" draggable="true" data-drag="' + esc(w.id) + '" data-prenom="' + esc(w.prenom) + '" data-driver="">' +
+        '<div class="car-head">' +
+        '<div class="avatar">' + esc(initial(w.prenom)) + '</div>' +
+        '<div><div class="d-name">' + esc(w.prenom) + ' <span class="heure">· cherche une place</span></div>' +
+        '<div class="d-point">📍 ' + esc(w.point) + (w.heure ? ' · souhait ' + esc(heureTxt(w.heure) || w.heure) : '') + '</div></div>' +
+        '</div>' + acceptHtml +
+        '<div class="d-actions"><button type="button" class="link-danger" data-del="attente" data-id="' + esc(w.id) + '" data-prenom="' + esc(w.prenom) + '">🗑 Me retirer</button></div>' +
+        '</div>';
+    }
+
+    function render() {
+      el('loading').classList.add('hidden');
+      el('app').classList.remove('hidden');
+
+      var today = state.competitions.filter(function (c) { return !isPast(c.date); });
+      var past = state.competitions.filter(function (c) { return isPast(c.date); });
+
+      el('comp-list').innerHTML = today.length
+        ? today.map(function (c) { return compCard(c, false); }).join('')
+        : '<div class="empty">Aucune compétition à venir. Crée-la ci-dessus avec « 📅 Ajouter une compétition ».</div>';
+
+      var pb = el('past-block');
+      if (past.length) {
+        pb.classList.remove('hidden');
+        el('past-list').innerHTML = past.map(function (c) { return compCard(c, true); }).join('');
+      } else {
+        pb.classList.add('hidden');
+      }
+
+      updateFormOptions();
+    }
+
+    function fillCompSelect(selId) {
+      var sel = el(selId);
+      var current = sel.value;
+      var upcoming = state.competitions.filter(function (c) { return !isPast(c.date); });
+      var html = '<option value="">— Choisis une compétition —</option>';
+      upcoming.forEach(function (c) {
+        html += '<option value="' + esc(c.id) + '">' + esc(c.nom) + ' · ' + esc(dateTxt(c.date, c.heureRdv)) + '</option>';
+      });
+      sel.innerHTML = html;
+      var stillThere = Array.prototype.some.call(sel.options, function (o) { return o.value === current; });
+      sel.value = stillThere ? current : '';
+    }
+
+    function updateFormOptions() {
+      fillCompSelect('d-comp');
+      fillCompSelect('p-comp');
+
+      var sel = el('p-comp');
+      var driverSel = el('p-driver');
+      var hint = el('p-driver-hint');
+      var comp = null;
+      for (var i = 0; i < state.competitions.length; i++) {
+        if (state.competitions[i].id === sel.value) { comp = state.competitions[i]; break; }
+      }
+
+      if (!comp) {
+        driverSel.innerHTML = '<option value="">Choisis d’abord une compétition</option>';
+        hint.textContent = 'Puis choisis la voiture de ton choix, ou déclare ton besoin si tout est complet.';
+        return;
+      }
+
+      var available = (comp.drivers || []).filter(function (d) { return d.restantes > 0; });
+      var hasDrivers = (comp.drivers || []).length > 0;
+      var html;
+
+      if (!hasDrivers) {
+        html = '<option value="">Aucune voiture proposée pour le moment</option>';
+        hint.textContent = 'Inscris-toi ci-dessous : ta demande apparaîtra dans « En attente d’un conducteur ».';
+      } else if (available.length === 0) {
+        html = '<option value="">Toutes les voitures sont pleines 😢</option>';
+        hint.textContent = 'Inscris-toi ci-dessous : ta demande apparaîtra dans « En attente d’un conducteur ».';
+      } else {
+        html = '<option value="">— Choisis un conducteur —</option>';
+        available.forEach(function (d) {
+          html += '<option value="' + esc(d.id) + '">' + esc(d.prenom) + ' · départ ' + esc(heureTxt(d.heure) || d.heure) + ' · ' + esc(d.point) + ' (' + d.restantes + ' place' + (d.restantes > 1 ? 's' : '') + ')</option>';
+        });
+        hint.textContent = 'Ou choisis « En attente » si aucune voiture ne te convient.';
+      }
+      var waitingOption = (!hasDrivers || available.length === 0) ? '' :
+        '<option value="__attente">🤚 En attente d’un conducteur (aucune voiture ne me convient)</option>';
+      var current = driverSel.value;
+      driverSel.innerHTML = html + waitingOption;
+      var stillThere = Array.prototype.some.call(driverSel.options, function (o) { return o.value === current; });
+      driverSel.value = stillThere ? current : '';
+    }
+
+    /* ---------------- formulaires ---------------- */
+
+    el('comp-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      callServer('addCompetition', {
+        nom: val('c-nom'),
+        date: val('c-date'),
+        heureRdv: val('c-heure'),
+        lieu: val('c-lieu')
+      }, 'Compétition ajoutée ! 🏆', createCompetition);
+      function createCompetition() {
+        el('c-nom').value = '';
+        el('c-date').value = '';
+        el('c-heure').value = '';
+        el('c-lieu').value = '';
+      }
+    });
+
+    el('driver-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      rememberPrenom('d-prenom');
+      callServer('addDriver', {
+        prenom: val('d-prenom'),
+        competitionId: val('d-comp'),
+        heure: val('d-heure'),
+        places: el('d-places').value,
+        point: val('d-point')
+      }, 'Voiture proposée ! 🚗', function () {
+        el('d-heure').value = '';
+        el('d-places').value = 3;
+        el('d-point').value = '';
+      });
+    });
+
+    el('passenger-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      rememberPrenom('p-prenom');
+      var driverSel = el('p-driver');
+      var isWaiting = driverSel.value === '' || driverSel.value === '__attente';
+      if (isWaiting && !val('p-point')) {
+        toast('Indique ton point de prise en charge le plus pratique.', true);
+        return;
+      }
+      callServer('addPassenger', {
+        prenom: val('p-prenom'),
+        competitionId: val('p-comp'),
+        driverId: isWaiting ? '' : driverSel.value,
+        point: val('p-point'),
+        heure: val('p-heure')
+      }, isWaiting ? 'Demande enregistrée : en attente d’un conducteur 🤚' : 'Place réservée ! 🚗', function () {
+        el('p-point').value = '';
+        el('p-heure').value = '';
+      });
+    });
+
+    el('refresh').addEventListener('click', loadData);
+
+    /* ---------------- suppression via modale ---------------- */
+
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest ? e.target.closest('[data-del]') : null;
+      if (!btn) return;
+      var requiresPrenom = btn.getAttribute('data-del') !== 'competition';
+      modalCtx = { type: btn.getAttribute('data-del'), id: btn.getAttribute('data-id'), prenom: btn.getAttribute('data-prenom') || '' };
+      el('modal-prenom').classList.toggle('hidden', !requiresPrenom);
+      el('modal-text').textContent = requiresPrenom
+        ? 'Pour confirmer, redonne ton prénom (attendu : ' + modalCtx.prenom + ').'
+        : 'Supprimer cette compétition ? Seule une compétition encore vide peut être supprimée.';
+      el('modal-prenom').value = '';
+      el('modal').classList.remove('hidden');
+      if (requiresPrenom) el('modal-prenom').focus();
+    });
+
+    el('modal-cancel').addEventListener('click', closeModal);
+
+    el('modal').addEventListener('click', function (e) {
+      if (e.target === el('modal')) closeModal();
+    });
+
+    el('modal-ok').addEventListener('click', function () {
+      if (!modalCtx) return;
+      callServer('removeEntry', { type: modalCtx.type, id: modalCtx.id, prenom: val('modal-prenom') }, 'Entrée supprimée.', closeModal);
+    });
+
+    function closeModal() {
+      el('modal').classList.add('hidden');
+      modalCtx = null;
+    }
+
+    /* ---------------- acceptation tactile (sans souris) ---------------- */
+
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest ? e.target.closest('[data-accept]') : null;
+      if (!btn) return;
+      var card = btn.closest('[data-drag]');
+      var sel = card ? card.querySelector('.accept-sel') : null;
+      if (!card || !sel || !sel.value) {
+        toast('Choisis d’abord la voiture dans le menu à gauche du bouton.', true);
+        return;
+      }
+      var opt = sel.options[sel.selectedIndex];
+      callServer('movePassenger', {
+        entryId: card.getAttribute('data-drag'),
+        driverId: sel.value
+      }, 'Passager associé à la voiture de ' + (opt ? opt.getAttribute('data-prenom') : '') + ' ! 🚗');
+    });
+
+    /* ---------------- glisser-déposer ---------------- */
+
+    var dragged = null;
+
+    function clearDropHover() {
+      var zones = document.querySelectorAll('.car.drop-hover');
+      for (var i = 0; i < zones.length; i++) zones[i].classList.remove('drop-hover');
+    }
+
+    document.addEventListener('dragstart', function (e) {
+      var src = e.target.closest ? e.target.closest('[data-drag]') : null;
+      if (!src) return;
+      dragged = { entryId: src.getAttribute('data-drag'), prenom: src.getAttribute('data-prenom') || '', from: src.getAttribute('data-driver') || '' };
+      if (e.dataTransfer) {
+        e.dataTransfer.setData('text/plain', dragged.entryId);
+        e.dataTransfer.effectAllowed = 'move';
+      }
+    });
+
+    document.addEventListener('dragend', function () {
+      clearDropHover();
+      dragged = null;
+    });
+
+    document.addEventListener('dragover', function (e) {
+      var zone = e.target.closest ? e.target.closest('[data-drop]') : null;
+      if (!zone || !dragged) return;
+      e.preventDefault();
+      if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+      zone.classList.add('drop-hover');
+    });
+
+    document.addEventListener('dragleave', function (e) {
+      var zone = e.target.closest ? e.target.closest('[data-drop]') : null;
+      if (zone) zone.classList.remove('drop-hover');
+    });
+
+    document.addEventListener('drop', function (e) {
+      var zone = e.target.closest ? e.target.closest('[data-drop]') : null;
+      clearDropHover();
+      if (!zone || !dragged) return;
+      e.preventDefault();
+      var targetDriverId = zone.getAttribute('data-drop');
+      var targetPrenom = zone.getAttribute('data-prenom') || '';
+      var from = dragged.from;
+      var entryId = dragged.entryId;
+      dragged = null;
+      if (from === targetDriverId) return;
+      callServer('movePassenger', {
+        entryId: entryId,
+        driverId: targetDriverId
+      }, 'Passager associé à la voiture de ' + targetPrenom + ' ! 🚗');
+    });
+
+    /* ---------------- démarrage ---------------- */
+
+    function loadData() {
+      google.script.run
+        .withSuccessHandler(function (data) { state = data; render(); })
+        .withFailureHandler(function (err) {
+          el('loading').classList.add('hidden');
+          el('app').classList.remove('hidden');
+          toast(err.message || 'Impossible de charger les données.', true);
+        })
+        .getData();
+    }
+
+    bindAddress('d-point', 'd-suggest');
+    bindAddress('p-point', 'p-suggest');
+    bindAddress('c-lieu', 'c-suggest');
+    recallPrenom('d-prenom');
+    recallPrenom('p-prenom');
+    loadData();
+  </script>
+</body>
+</html>
